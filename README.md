@@ -71,7 +71,7 @@ Mental health crises rarely appear overnight. They build slowly, **one unnoticed
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                          FEELIO v2.0 ARCHITECTURE                       │
 ├──────────────────┬──────────────────────────────────────────────────────┤
-│  PRESENTATION    │  HTML5  ·  Vanilla CSS (Glassmorphism)  ·  Vanilla JS │
+│  PRESENTATION    │  HTML5  ·  Vanilla CSS (Glassmorphism)  ·  Vanilla JS│
 │  (Frontend)      │  Chart.js 4.4  ·  Font Awesome 6  ·  Google Fonts    │
 ├──────────────────┼──────────────────────────────────────────────────────┤
 │  ROUTING         │  Flask 3.0 Blueprints-ready  ·  @login_required      │
@@ -109,7 +109,7 @@ Route Handler (app.py)
      ├──► DB Query (SQLAlchemy ORM) ──► MySQL
      │
      ├──► AI Engine (run_ai_analysis) ────────────────────────────┐
-     │         │                                                   │
+     │         │                                                  │
      │         └──► Emotional Drift Score                         │
      │         └──► Burnout Probability                           │
      │         └──► Risk Classification (low/medium/high/critical)│
@@ -208,14 +208,14 @@ def run_ai_analysis(user_id):
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
 │                         FEELIO DATABASE SCHEMA                       │
-├─────────────────┐                                                     │
-│   users         │◄──────────────────────────────┐                   │
-├─────────────────┤                               │                   │
-│ id (PK)         │                               │                   │
-│ username        │                               │                   │
-│ email           │           ┌──────────────────►│                   │
+├─────────────────┐                                                    │
+│   users         │◄──────────────────────────────┐                    │
+├─────────────────┤                               │                    │
+│ id (PK)         │                               │                    │
+│ username        │                               │                    │
+│ email           │           ┌──────────────────►│                    │
 │ password_hash   │           │  emotion_logs      │                   │
-│ full_name       │           ├────────────────   │                   │
+│ full_name       │           ├────────────────   │                    │
 │ age             │           │ id (PK)            │                   │
 │ gender          │           │ user_id (FK)───────┘                   │
 │ occupation      │           │ emoji                                  │
@@ -227,7 +227,7 @@ def run_ai_analysis(user_id):
 │ created_at      │           │ triggers (CSV)                         │
 │ updated_at      │           │ activities (CSV)                       │
 └─────────────────┘           └────────────────                        │
-        │                                                               │
+        │                                                              │
         │    ┌─────────────────────────────────────────────────────┐   │
         ├───►│ ai_analysis                                         │   │
         │    ├─────────────────────────────────────────────────────┤   │
@@ -236,12 +236,12 @@ def run_ai_analysis(user_id):
         │    │ mood_trend · insights · recommendations (JSON)      │   │
         │    │ weekly_avg_score · care_pathway                     │   │
         │    └─────────────────────────────────────────────────────┘   │
-        │    ┌──────────────────┐  ┌──────────────────┐               │
+        │    ┌──────────────────┐  ┌──────────────────┐                │
         ├───►│ mood_goals       │  │ journal_entries   │               │
         │    │ title · type     │  │ title · content   │               │
         │    │ target/done days │  │ sentiment_score   │               │
         │    │ progress %       │  │ word_count        │               │
-        │    └──────────────────┘  └──────────────────┘               │
+        │    └──────────────────┘  └──────────────────┘                │
         │    ┌──────────────────┐                                      │
         └───►│ notifications    │                                      │
              │ title · message  │                                      │

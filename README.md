@@ -18,12 +18,15 @@
 [![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://mysql.com)
 [![Chart.js](https://img.shields.io/badge/Chart.js-4.4-FF6384?style=for-the-badge&logo=chartdotjs&logoColor=white)](https://chartjs.org)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-2.0.0-blueviolet?style=for-the-badge)]()
-[![Status](https://img.shields.io/badge/Status-Production%20Ready-success?style=for-the-badge)]()
+[![Version](https://img.shields.io/badge/Version-2.0.0-blueviolet?style=for-the-badge)](https://github.com/Ratandeep-purohit/Feelio/releases)
+[![Status](https://img.shields.io/badge/Status-Production%20Ready-success?style=for-the-badge)](https://github.com/Ratandeep-purohit/Feelio)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-Ratandeep--purohit%2FFelio-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Ratandeep-purohit/Feelio)
 
 <br/>
 
 > **Feelio** is a proactive mental wellness platform that detects emotional drift, calculates burnout probability using a real AI engine, and routes users to the right support pathway — all before crisis strikes.
+>
+> 🔗 **Repository:** [github.com/Ratandeep-purohit/Feelio](https://github.com/Ratandeep-purohit/Feelio)
 
 <br/>
 
@@ -309,8 +312,8 @@ Emotion-Buddy/
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/Emotion-Buddy.git
-cd Emotion-Buddy
+git clone https://github.com/Ratandeep-purohit/Feelio.git
+cd Feelio
 
 # Create a virtual environment (recommended)
 python -m venv venv
@@ -696,8 +699,10 @@ copies of the Software...
                                         — Feelio Manifesto
 ```
 
-[![GitHub Stars](https://img.shields.io/github/stars/yourusername/Emotion-Buddy?style=social)](https://github.com/yourusername/Emotion-Buddy)
-[![GitHub Forks](https://img.shields.io/github/forks/yourusername/Emotion-Buddy?style=social)](https://github.com/yourusername/Emotion-Buddy/fork)
+[![GitHub Stars](https://img.shields.io/github/stars/Ratandeep-purohit/Feelio?style=social)](https://github.com/Ratandeep-purohit/Feelio)
+[![GitHub Forks](https://img.shields.io/github/forks/Ratandeep-purohit/Feelio?style=social)](https://github.com/Ratandeep-purohit/Feelio/fork)
+
+🔗 **[View on GitHub → github.com/Ratandeep-purohit/Feelio](https://github.com/Ratandeep-purohit/Feelio)**
 
 *If Feelio helped you, consider giving it a ⭐ — it helps others discover it.*
 

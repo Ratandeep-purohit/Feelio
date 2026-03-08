@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+{% block title %}Calm Zone — Feelio{% endblock %}
+{% block page_title %}Calm Zone{% endblock %}
+{% block page_subtitle %}Relax, breathe, and restore your emotional balance{% endblock %}
+
+{% block content %}
+<!-- ── Breathing Exercise ─────────────────────────────────────── -->
+<div class="grid g-cols-12 mb-4">
+    <div class="card col4 text-center fade-up stagger-1">
+        <div class="card-title justify-center mb-4">
+            <div class="card-icon teal"><i class="fa-solid fa-wind"></i></div>
+            Guided Breathing
+        </div>
+        <p class="text-muted text-sm mb-4">Follow the circle to calm your nervous system using box breathing.</p>
+        <div class="breath-ring" id="breathRing" onclick="toggleBreath()">
+            <div class="breath-counter" id="breathCounter">4</div>
+            <div class="breath-phase" id="breathPhase">Tap to Start</div>
+        </div>
+        <div class="mt-4">
+            <div class="flex justify-center gap-3 flex-wrap text-xs text-muted">
+                <span><span class="fw-700 text-primary">4s</span> Inhale</span>
+                <span><span class="fw-700 text-warning">4s</span> Hold</span>
+                <span><span class="fw-700 text-secondary">4s</span> Exhale</span>
+                <span><span class="fw-700 text-subtle">4s</span> Hold</span>
+            </div>
+        </div>
+        <div class="mt-3 text-sm fw-700 text-muted" id="breathSessionInfo">Sessions: 0</div>
+    </div>
+
+    <!-- ── Mindfulness Tracking ────────────────────── -->
+    <div class="card col4 fade-up stagger-2">
+        <div class="card-title mb-4">
+            <div class="card-icon purple"><i class="fa-solid fa-om"></i></div>
+            5-Min Mindfulness
+        </div>
+        <p class="text-muted text-sm mb-4">A quick guided session to anchor yourself in the present moment.</p>
+        <div id="mindTimer"
+            style="text-align:center;font-size:3rem;font-weight:900;color:var(--primary);margin:24px 0;display:none">
+            5:00</div>
+        <div id="mindStep" class="p-3 mb-4"
+            style="background:rgba(108,59,239,.07);border-radius:var(--radius);text-align:center;min-height:64px;display:flex;align-items:center;justify-content:center">
+            <p class="text-muted text-sm">Click Start to begin your mindfulness session</p>
+        </div>
+        <button class="btn btn-primary btn-block" id="mindBtn" onclick="toggleMindfulness()">
+            <i class="fa-solid fa-play"></i> Start Session
+        </button>
+    </div>
+
+    <!-- ── Ambient Sound Tiles ─────────────────────── -->
+    <div class="card col4 fade-up stagger-3">
+        <div class="card-title mb-4">
+            <div class="card-icon orange"><i class="fa-solid fa-music"></i></div>
+            Ambient Soundscapes
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+            {% for sound in [
+            ('🌧️', 'Gentle Rain', 'Calm the mind with soft rainfall', '#3b82f6'),
+            ('🌊', 'Ocean Waves', 'Steady waves for deep relaxation', '#0e7490'),
+            ('🌲', 'Forest Birds', 'Nature sounds for grounding', '#10b981'),
+            ('🔥', 'Crackling Fire','Warm and cozy — perfect for focus', '#f97316'),
+            ('🌌', 'White Noise', 'Block distractions and stay calm', '#6c3bef'),
+            ] %}
+            <div class="sound-tile" onclick="toggleSound(this, '{{ sound[1] }}')"
+                style="display:flex;align-items:center;gap:12px;padding:12px 16px;border:1.5px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:all .25s">
+                <div style="font-size:1.8rem;width:40px;text-align:center">{{ sound[0] }}</div>
+                <div style="flex:1">
+                    <div class="fw-700 text-sm">{{ sound[1] }}</div>
+                    <div class="text-xs text-muted">{{ sound[2] }}</div>
+                </div>
+                <div class="sound-icon" style="color:var(--text-subtle)"><i class="fa-solid fa-play"></i></div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- ── Wellness Tips Row ─────────────────────────────────────── -->
+<div class="card fade-up stagger-4">
+    <div class="card-header">
+        <div class="card-title">
+            <div class="card-icon pink"><i class="fa-solid fa-lightbulb"></i></div>
+            Wellness Tips & Techniques
+        </div>
+    </div>
+    <div class="grid g-cols-4 gap-4">
+        {% for tip in [
+        ('fa-bed', '#6c3bef', 'Sleep Hygiene', 'Go to bed at the same time each night. A consistent routine enhances
+        mood and memory.'),
+        ('fa-dumbbell', '#10b981', 'Move Your Body', 'Even a 10-minute walk releases endorphins that reduce anxiety and
+        improve focus.'),
+        ('fa-hand-holding-heart', '#f472b6', 'Self-Compassion', 'Treat yourself the way you\'d treat a close friend who
+        is struggling. Be kind.'),
+        ('fa-users', '#2dd4bf', 'Social Connection', 'Reach out to one person this week. Human connection is one of the
+        strongest resilience factors.'),
+        ] %}
+        <div style="background:rgba({{ '108,59,239' }},0.04);border-radius:var(--radius);padding:20px">
+            <div
+                style="width:44px;height:44px;border-radius:var(--radius-sm);background:rgba({{ '108,59,239' }},0.1);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:1.1rem;margin-bottom:12px">
+                <i class="fa-solid {{ tip[0] }}"></i>
+            </div>
+            <h4 class="fw-700 mb-2">{{ tip[2] }}</h4>
+            <p class="text-muted text-sm">{{ tip[3] }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // ── Box Breathing ─────────────────────────────────────────────────
+    let breathActive = false, breathTimeout = null, breathSessions = 0;
+    const phases = [
+        { text: 'Inhale', dur: 4, class: 'expanding' },
+        { text: 'Hold', dur: 4, class: '' },
+        { text: 'Exhale', dur: 4, class: 'contracting' },
+        { text: 'Hold', dur: 4, class: '' }
+    ];
+    let phaseIdx = 0, count = 4, countInterval = null;
+
+    function toggleBreath() {
+        breathActive = !breathActive;
+        const ring = document.getElementById('breathRing');
+        if (breathActive) { nextPhase(); }
+        else {
+            clearTimeout(breathTimeout); clearInterval(countInterval);
+            ring.className = 'breath-ring';
+            document.getElementById('breathPhase').textContent = 'Tap to Start';
+            document.getElementById('breathCounter').textContent = '4';
+            phaseIdx = 0;
+        }
+    }
+
+    function nextPhase() {
+        if (!breathActive) return;
+        const p = phases[phaseIdx % phases.length];
+        const ring = document.getElementById('breathRing');
+        ring.className = `breath-ring ${p.class}`;
+        document.getElementById('breathPhase').textContent = p.text;
+        count = p.dur;
+        document.getElementById('breathCounter').textContent = count;
+        clearInterval(countInterval);
+        countInterval = setInterval(() => {
+            count--;
+            document.getElementById('breathCounter').textContent = count;
+            if (count <= 0) clearInterval(countInterval);
+        }, 1000);
+        phaseIdx++;
+        if (phaseIdx % 4 === 0) {
+            breathSessions++;
+            document.getElementById('breathSessionInfo').textContent = `Sessions: ${breathSessions}`;
+        }
+        breathTimeout = setTimeout(nextPhase, p.dur * 1000);
+    }
+
+    // ── Mindfulness Timer ─────────────────────────────────────────────
+    const mindSteps = [
+        'Close your eyes and take three slow, deep breaths.',
+        'Notice where your body makes contact with the chair or floor.',
+        'Bring your awareness to any sounds around you — without judgment.',
+        'Scan from your head to your toes noticing any tension. Soften it.',
+        'Return your attention to your breath. In... and out...',
+    ];
+    let mindRunning = false, mindSecs = 300, mindInterval = null, mindStepIdx = 0, mindStepInterval = null;
+
+    function toggleMindfulness() {
+        const btn = document.getElementById('mindBtn');
+        const timer = document.getElementById('mindTimer');
+        if (!mindRunning) {
+            mindRunning = true; mindSecs = 300; mindStepIdx = 0;
+            timer.style.display = 'block';
+            btn.innerHTML = '<i class="fa-solid fa-stop"></i> Stop';
+            btn.style.background = 'var(--grad-warm)';
+            showMindStep();
+            mindInterval = setInterval(() => {
+                mindSecs--;
+                const m = Math.floor(mindSecs / 60), s = mindSecs % 60;
+                timer.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+                if (mindSecs <= 0) stopMindfulness(true);
+            }, 1000);
+            mindStepInterval = setInterval(showMindStep, 40000);
+        } else {
+            stopMindfulness(false);
+        }
+    }
+    function showMindStep() {
+        const el = document.getElementById('mindStep');
+        el.style.opacity = 0;
+        setTimeout(() => {
+            el.querySelector('p').textContent = mindSteps[mindStepIdx % mindSteps.length];
+            el.style.transition = 'opacity .4s'; el.style.opacity = 1;
+            mindStepIdx++;
+        }, 300);
+    }
+    function stopMindfulness(done) {
+        mindRunning = false;
+        clearInterval(mindInterval); clearInterval(mindStepInterval);
+        const btn = document.getElementById('mindBtn');
+        btn.innerHTML = '<i class="fa-solid fa-play"></i> Start Session';
+        btn.style.background = '';
+        document.getElementById('mindTimer').style.display = 'none';
+        document.getElementById('mindStep').querySelector('p').textContent = done
+            ? '✅ Session complete! You did great.' : 'Click Start to begin a new session.';
+    }
+
+    // ── Sound Tiles ───────────────────────────────────────────────────
+    function toggleSound(tile, name) {
+        const icon = tile.querySelector('.sound-icon i');
+        const wasPlaying = tile.classList.contains('playing');
+        document.querySelectorAll('.sound-tile').forEach(t => {
+            t.classList.remove('playing');
+            t.style.borderColor = 'var(--border)';
+            t.style.background = '';
+            t.querySelector('.sound-icon i').className = 'fa-solid fa-play';
+        });
+        if (!wasPlaying) {
+            tile.classList.add('playing');
+            tile.style.borderColor = 'var(--primary)';
+            tile.style.background = 'rgba(108,59,239,.06)';
+            icon.className = 'fa-solid fa-pause';
+        }
+    }
+</script>
+{% endblock %}

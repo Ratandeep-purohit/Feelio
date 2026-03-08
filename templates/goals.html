@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% block title %}Wellness Goals — Feelio{% endblock %}
+{% block page_title %}Wellness Goals{% endblock %}
+{% block page_subtitle %}Set, track, and achieve your mental wellness milestones{% endblock %}
+
+{% block content %}
+<div class="grid g-cols-12">
+    <!-- Create New Goal -->
+    <div class="col4 fade-up stagger-1">
+        <div class="card">
+            <div class="card-title mb-4">
+                <div class="card-icon green"><i class="fa-solid fa-plus-circle"></i></div>
+                Create a Goal
+            </div>
+            <form method="POST" action="{{ url_for('goals') }}">
+                <div class="form-group">
+                    <label class="form-label"><i class="fa-solid fa-pencil"></i> Goal Title <span
+                            style="color:var(--danger)">*</span></label>
+                    <input type="text" name="title" class="form-control" required
+                        placeholder="e.g. Meditate for 5 minutes daily">
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fa-solid fa-shapes"></i> Goal Type</label>
+                    <select name="goal_type" class="form-control">
+                        <option value="mindfulness">🧘 Mindfulness</option>
+                        <option value="sleep">😴 Sleep Hygiene</option>
+                        <option value="exercise">🏃 Exercise</option>
+                        <option value="social">👥 Social Connection</option>
+                        <option value="journaling">📓 Journaling</option>
+                        <option value="nutrition">🥗 Nutrition</option>
+                        <option value="gratitude">🙏 Gratitude Practice</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fa-regular fa-calendar"></i> Target Days</label>
+                    <input type="number" name="target_days" class="form-control" value="7" min="1" max="365">
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fa-solid fa-file-lines"></i> Description</label>
+                    <textarea name="description" class="form-control" rows="3"
+                        placeholder="Why is this goal important to you?"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fa-solid fa-bullseye"></i> Create Goal
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Goals List -->
+    <div class="col8 fade-up stagger-2">
+        {% if goals %}
+        <!-- Active Goals -->
+        {% set active_goals = goals | selectattr('is_completed', 'equalto', False) | list %}
+        {% set done_goals = goals | selectattr('is_completed', 'equalto', True) | list %}
+
+        {% if active_goals %}
+        <h4 class="fw-700 mb-3"><i class="fa-solid fa-fire text-warning mr-1"></i> In Progress ({{ active_goals|length
+            }})</h4>
+        <div class="grid g-cols-2 mb-5">
+            {% for goal in active_goals %}
+            {% set pct = ((goal.completed_days / goal.target_days) * 100)|int %}
+            <div class="goal-card fade-up" style="--stagger:{{ loop.index }}">
+                <div class="flex justify-between items-start mb-3">
+                    <div class="goal-type-icon {% if goal.goal_type == 'mindfulness' %}
+              style=" background:rgba(108,59,239,.1);color:var(--primary)" {% elif goal.goal_type=='sleep' %}
+                        style="background:rgba(59,130,246,.1);color:var(--info)" {% elif goal.goal_type=='exercise' %}
+                        style="background:rgba(16,185,129,.1);color:var(--success)" {% else %}
+                        style="background:rgba(251,146,60,.1);color:var(--accent-warm)" {% endif %}">
+                        {% if goal.goal_type == 'mindfulness' %}🧘
+                        {% elif goal.goal_type == 'sleep' %}😴
+                        {% elif goal.goal_type == 'exercise' %}🏃
+                        {% elif goal.goal_type == 'social' %}👥
+                        {% elif goal.goal_type == 'journaling' %}📓
+                        {% elif goal.goal_type == 'gratitude' %}🙏
+                        {% else %}🎯{% endif %}
+                    </div>
+                    <span class="badge badge-info text-xs">{{ goal.goal_type|capitalize }}</span>
+                </div>
+                <h4 class="fw-700 mb-2">{{ goal.title }}</h4>
+                {% if goal.description %}
+                <p class="text-muted text-xs mb-3">{{ goal.description }}</p>
+                {% endif %}
+                <div class="progress-bar mb-2">
+                    <div class="progress-fill {% if pct >= 80 %}green{% elif pct >= 40 %}{% else %}warm{% endif %}"
+                        style="width:{{ pct }}%"></div>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs text-muted">{{ goal.completed_days }} / {{ goal.target_days }} days</span>
+                    <div class="flex items-center gap-2">
+                        <span
+                            class="badge {% if pct >= 80 %}badge-success{% elif pct >= 40 %}badge-info{% else %}badge-medium{% endif %} text-xs">{{
+                            pct }}%</span>
+                        <button class="btn btn-ghost btn-sm" onclick="incrementGoalPage({{ goal.id }}, this)"
+                            title="Mark today done" style="padding:5px 10px;font-size:.75rem">
+                            <i class="fa-solid fa-check"></i> Done Today
+                        </button>
+                    </div>
+                </div>
+                <div class="text-xs text-subtle mt-2">Created {{ goal.created_at.strftime('%d %b %Y') }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if done_goals %}
+        <h4 class="fw-700 mb-3"><i class="fa-solid fa-trophy text-warning mr-1"></i> Completed ({{ done_goals|length }})
+        </h4>
+        <div class="grid g-cols-2">
+            {% for goal in done_goals %}
+            <div class="goal-card completed">
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="fw-700">{{ goal.title }}</h4>
+                    <span class="badge badge-success"><i class="fa-solid fa-check"></i> Done</span>
+                </div>
+                <div class="progress-bar mb-2">
+                    <div class="progress-fill green" style="width:100%"></div>
+                </div>
+                <div class="text-xs text-muted">{{ goal.completed_days }}/{{ goal.target_days }} days completed</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="empty-state mt-5">
+            <div class="empty-icon">🎯</div>
+            <h4>No goals yet</h4>
+            <p>Setting wellness goals helps build consistent emotional health habits. Start with something small!</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function incrementGoalPage(goalId, btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+        fetch(`/api/goals/${goalId}/increment`, { method: 'POST' })
+            .then(r => r.json())
+            .then(d => {
+                if (d.success) {
+                    // Reload to reflect new state
+                    location.reload();
+                }
+            });
+    }
+</script>
+{% endblock %}

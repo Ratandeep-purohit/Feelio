@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Sign In — Feelio{% endblock %}
+
+{% block public_content %}
+<div class="auth-layout">
+    <div class="auth-panel-left">
+        <div style="position:relative;z-index:1;text-align:center;color:#fff">
+            <div style="font-size:4rem;margin-bottom:24px">🌿</div>
+            <h2 style="font-size:2rem;font-weight:900;color:#fff">Welcome Back</h2>
+            <p style="color:rgba(255,255,255,.85);max-width:340px;margin:16px auto;line-height:1.7">
+                Your emotional wellness awaits. Sign in to see your latest AI insights and mood trends.
+            </p>
+            <div class="mt-5 p-4"
+                style="background:rgba(255,255,255,.12);border-radius:var(--radius-lg);max-width:320px;margin:40px auto 0">
+                <div style="font-size:1.3rem;margin-bottom:8px">💡 Daily Reminder</div>
+                <p style="color:rgba(255,255,255,.9);font-size:.95rem">
+                    "Small consistent check-ins create powerful emotional awareness over time."
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-panel-right">
+        <div class="auth-box fade-up">
+            <div style="font-size:2rem;margin-bottom:12px">🔐</div>
+            <h1 class="auth-heading">Sign in to Feelio</h1>
+            <p class="auth-subheading">Continue your wellness journey.</p>
+
+            <form method="POST" action="{{ url_for('login') }}">
+                <div class="form-group">
+                    <label class="form-label"><i class="fa-solid fa-envelope"></i> Email</label>
+                    <input type="email" name="email" class="form-control" required placeholder="your@email.com"
+                        autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fa-solid fa-lock"></i> Password</label>
+                    <div style="position:relative">
+                        <input type="password" name="password" id="loginPassword" class="form-control" required
+                            placeholder="Your password" autocomplete="current-password">
+                        <button type="button" onclick="togglePass('loginPassword',this)"
+                            style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted)">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center mb-4">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="remember" name="remember">
+                        <label for="remember">Remember me</label>
+                    </div>
+                    <a href="#" class="text-sm fw-600" style="color:var(--primary)">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block btn-lg">
+                    <i class="fa-solid fa-right-to-bracket"></i> Sign In
+                </button>
+            </form>
+
+            <p class="text-center mt-4 text-muted">
+                New to Feelio? <a href="{{ url_for('signup') }}" class="fw-700" style="color:var(--primary)">Create an
+                    account →</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

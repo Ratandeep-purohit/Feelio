@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% block title %}Care Pathway — Feelio{% endblock %}
+{% block page_title %}Care Pathway{% endblock %}
+{% block page_subtitle %}Your AI-recommended support pathway based on current emotional data{% endblock %}
+
+{% block content %}
+
+<!-- ── Risk Summary Banner ────────────────────────────────────── -->
+<div class="card mb-5 fade-up"
+    style="background:{% if risk_level=='critical' %}linear-gradient(135deg,#ef4444,#9d174d){% elif risk_level=='high' %}linear-gradient(135deg,#f97316,#ef4444){% elif risk_level=='medium' %}linear-gradient(135deg,#f59e0b,#f97316){% else %}var(--grad-primary){% endif %};color:#fff;border:none">
+    <div class="flex items-center gap-5">
+        <div style="font-size:3.5rem">
+            {% if risk_level == 'critical' %}🚨
+            {% elif risk_level == 'high' %}⚠️
+            {% elif risk_level == 'medium' %}💛
+            {% else %}💚{% endif %}
+        </div>
+        <div style="flex:1">
+            <div style="font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;opacity:.85">
+                Current Risk Assessment</div>
+            <h2 style="font-size:2rem;font-weight:900;color:#fff;margin:4px 0">{{ risk_level|capitalize }} Risk Level
+            </h2>
+            <p style="opacity:.9;font-size:1rem;max-width:620px">
+                {% if risk_level == 'low' %}Your emotional patterns look stable. Keep building wellness habits
+                proactively.
+                {% elif risk_level == 'medium' %}Moderate stress detected. Take targeted action before it escalates.
+                {% elif risk_level == 'high' %}Significant emotional drift — professional guidance is strongly
+                recommended.
+                {% else %}Critical distress signals detected. Please act now — you are not alone.{% endif %}
+            </p>
+        </div>
+        <div style="text-align:right">
+            <div style="font-size:.8rem;opacity:.8">Recommended Pathway</div>
+            <div style="font-size:2.5rem;font-weight:900;line-height:1">{{ care_pathway }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Three Pathway Tiers ───────────────────────────────────── -->
+<div class="grid g-cols-3 mb-5">
+    <!-- Tier 1: Self-Care -->
+    <div class="pathway-card tier-1 fade-up stagger-1 {% if care_pathway == 1 %}active-tier{% endif %}">
+        <div class="flex items-center gap-3 mb-4">
+            <div
+                style="width:48px;height:48px;border-radius:var(--radius);background:rgba(16,185,129,.1);color:var(--success);display:flex;align-items:center;justify-content:center;font-size:1.3rem">
+                🌱</div>
+            <div>
+                <div class="text-xs text-muted fw-700 text-uppercase" style="letter-spacing:.08em">Tier 1</div>
+                <h3 class="fw-700" style="color:var(--success)">Self-Care</h3>
+            </div>
+            {% if care_pathway == 1 %}<span class="badge badge-success ml-auto">Active</span>{% endif %}
+        </div>
+        <p class="text-muted text-sm mb-4">Build everyday resilience through consistent personal wellness habits.</p>
+        <ul style="display:flex;flex-direction:column;gap:10px">
+            {% for item in [
+            ('fa-leaf','Daily Emotion Check-Ins'),
+            ('fa-book-open','Mindfulness Journaling'),
+            ('fa-wind','Guided Breathing'),
+            ('fa-music','Ambient Calm Zone'),
+            ('fa-bullseye','Wellness Goal Tracking'),
+            ] %}
+            <li class="flex items-center gap-3 text-sm">
+                <i class="fa-solid {{ item[0] }}" style="color:var(--success);width:18px"></i>
+                {{ item[1] }}
+            </li>
+            {% endfor %}
+        </ul>
+        <a href="{{ url_for('calm') }}" class="btn btn-ghost btn-sm btn-block mt-4"
+            style="border-color:var(--success);color:var(--success)">
+            Open Calm Zone →
+        </a>
+    </div>
+
+    <!-- Tier 2: Peer Support -->
+    <div class="pathway-card tier-2 fade-up stagger-2 {% if care_pathway == 2 %}active-tier{% endif %}">
+        <div class="flex items-center gap-3 mb-4">
+            <div
+                style="width:48px;height:48px;border-radius:var(--radius);background:rgba(245,158,11,.1);color:var(--warning);display:flex;align-items:center;justify-content:center;font-size:1.3rem">
+                👥</div>
+            <div>
+                <div class="text-xs text-muted fw-700" style="letter-spacing:.08em;text-transform:uppercase">Tier 2
+                </div>
+                <h3 class="fw-700" style="color:var(--warning)">Peer Support</h3>
+            </div>
+            {% if care_pathway == 2 %}<span class="badge badge-medium ml-auto">Active</span>{% endif %}
+        </div>
+        <p class="text-muted text-sm mb-4">Connect confidentially with communities navigating similar emotional
+            experiences.</p>
+        <ul style="display:flex;flex-direction:column;gap:10px">
+            {% for item in [
+            ('fa-users','Anonymous Support Groups'),
+            ('fa-comments','Moderated Chat Rooms'),
+            ('fa-user-tie','Trained Peer Listeners'),
+            ('fa-share-nodes','Community Sharing Boards'),
+            ] %}
+            <li class="flex items-center gap-3 text-sm">
+                <i class="fa-solid {{ item[0] }}" style="color:var(--warning);width:18px"></i>
+                {{ item[1] }}
+            </li>
+            {% endfor %}
+        </ul>
+        <a href="#" class="btn btn-ghost btn-sm btn-block mt-4"
+            style="border-color:var(--warning);color:var(--warning)">
+            Find a Community →
+        </a>
+    </div>
+
+    <!-- Tier 3: Crisis Intervention -->
+    <div
+        class="pathway-card tier-3 fade-up stagger-3 {% if care_pathway == 3 %}active-tier{% if risk_level == 'critical' %} critical-tier{% endif %}{% endif %}">
+        <div class="flex items-center gap-3 mb-4">
+            <div
+                style="width:48px;height:48px;border-radius:var(--radius);background:rgba(239,68,68,.1);color:var(--danger);display:flex;align-items:center;justify-content:center;font-size:1.3rem">
+                🚑</div>
+            <div>
+                <div class="text-xs text-muted fw-700" style="letter-spacing:.08em;text-transform:uppercase">Tier 3
+                </div>
+                <h3 class="fw-700" style="color:var(--danger)">Crisis Intervention</h3>
+            </div>
+            {% if care_pathway == 3 %}<span class="badge badge-high ml-auto">Active</span>{% endif %}
+        </div>
+        <p class="text-muted text-sm mb-4">Immediate professional support when emotional distress reaches a critical
+            point.</p>
+        <ul style="display:flex;flex-direction:column;gap:10px">
+            {% for item in [
+            ('fa-phone','24/7 Crisis Helpline'),
+            ('fa-user-doctor','Find Licensed Therapists'),
+            ('fa-hospital','Local Mental Health Centers'),
+            ('fa-building-ngo','NGO & Community Networks'),
+            ] %}
+            <li class="flex items-center gap-3 text-sm">
+                <i class="fa-solid {{ item[0] }}" style="color:var(--danger);width:18px"></i>
+                {{ item[1] }}
+            </li>
+            {% endfor %}
+        </ul>
+        <a href="tel:9152987821" class="btn btn-danger btn-sm btn-block mt-4">
+            <i class="fa-solid fa-phone"></i> Call iCall: 9152987821
+        </a>
+    </div>
+</div>
+
+<!-- ── AI Recommendations ─────────────────────────────────────── -->
+{% if recommendations %}
+<div class="card fade-up stagger-4">
+    <div class="card-header">
+        <div class="card-title">
+            <div class="card-icon purple"><i class="fa-solid fa-robot"></i></div>
+            AI-Personalized Recommendations
+        </div>
+        <span class="badge badge-info">{{ recommendations|length }} suggestions</span>
+    </div>
+    <div class="grid g-cols-2 gap-3 mt-2">
+        {% for rec in recommendations %}
+        <div class="flex gap-3 p-3"
+            style="background:rgba(108,59,239,.05);border-radius:var(--radius);border-left:3px solid var(--primary)">
+            <i class="fa-solid fa-circle-check mt-1" style="color:var(--primary);flex-shrink:0"></i>
+            <p class="text-sm">{{ rec }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

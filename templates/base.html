@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Feelio — AI-Driven Emotional Awareness Platform for proactive mental wellness.">
+    <title>{% block title %}Feelio{% endblock %}</title>
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- App CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- Chart.js (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    {% block head %}{% endblock %}
+</head>
+
+<body>
+
+    {% if current_user %}
+    <!-- ╔══════════════════════════════════════╗ -->
+    <!-- ║     AUTHENTICATED APP SHELL          ║ -->
+    <!-- ╚══════════════════════════════════════╝ -->
+    <div class="shell">
+
+        <!-- ── Sidebar ─────────────────────────────────────────── -->
+        <aside class="sidebar" id="sidebar">
+            <a href="{{ url_for('index') }}" class="sidebar-logo">
+                <span class="logo-icon">🧠</span> Feelio
+            </a>
+
+            <nav class="sidebar-nav">
+                <span class="nav-section-title">Main</span>
+                <a href="{{ url_for('dashboard') }}"
+                    class="nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
+                    <i class="fa-solid fa-chart-pie"></i> Dashboard
+                </a>
+                <a href="{{ url_for('checkin') }}"
+                    class="nav-item {% if request.endpoint == 'checkin' %}active{% endif %}">
+                    <i class="fa-solid fa-heart-pulse"></i> Emotion Check-In
+                </a>
+                <a href="{{ url_for('analytics') }}"
+                    class="nav-item {% if request.endpoint == 'analytics' %}active{% endif %}">
+                    <i class="fa-solid fa-chart-line"></i> Analytics
+                </a>
+
+                <span class="nav-section-title">Wellness</span>
+                <a href="{{ url_for('journal') }}"
+                    class="nav-item {% if request.endpoint == 'journal' %}active{% endif %}">
+                    <i class="fa-solid fa-book-open"></i> Journal
+                </a>
+                <a href="{{ url_for('goals') }}" class="nav-item {% if request.endpoint == 'goals' %}active{% endif %}">
+                    <i class="fa-solid fa-bullseye"></i> Goals
+                </a>
+                <a href="{{ url_for('calm') }}" class="nav-item {% if request.endpoint == 'calm' %}active{% endif %}">
+                    <i class="fa-solid fa-leaf"></i> Calm Zone
+                </a>
+                <a href="{{ url_for('support') }}"
+                    class="nav-item {% if request.endpoint == 'support' %}active{% endif %}">
+                    <i class="fa-solid fa-hand-holding-heart"></i> Care Pathway
+                </a>
+
+                <span class="nav-section-title">Account</span>
+                <a href="{{ url_for('notifications') }}"
+                    class="nav-item {% if request.endpoint == 'notifications' %}active{% endif %}">
+                    <i class="fa-solid fa-bell"></i> Notifications
+                    {% if unread_notif_count > 0 %}
+                    <span class="nav-badge">{{ unread_notif_count }}</span>
+                    {% endif %}
+                </a>
+                <a href="{{ url_for('profile') }}"
+                    class="nav-item {% if request.endpoint == 'profile' %}active{% endif %}">
+                    <i class="fa-solid fa-user-circle"></i> Profile
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="{{ url_for('profile') }}" class="sidebar-user">
+                    <div class="avatar">{{ current_user.initials }}</div>
+                    <div class="sidebar-user-info">
+                        <div class="sidebar-user-name">{{ current_user.username }}</div>
+                        <div class="sidebar-user-email">{{ current_user.email }}</div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-subtle text-xs"></i>
+                </a>
+                <a href="{{ url_for('logout') }}" class="nav-item mt-2" style="color: var(--danger);">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Sign Out
+                </a>
+            </div>
+        </aside>
+
+        <!-- ── Main Content ─────────────────────────────────────── -->
+        <div class="main-content">
+
+            <!-- Top Bar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <h1 class="page-heading">{% block page_title %}{% endblock %}</h1>
+                    <p class="page-subheading">{% block page_subtitle %}{% endblock %}</p>
+                </div>
+                <div class="topbar-right">
+                    <!-- Streak Badge -->
+                    {% if current_user.streak_days and current_user.streak_days > 0 %}
+                    <div class="badge badge-success" title="Check-in streak">
+                        <i class="fa-solid fa-fire"></i> {{ current_user.streak_days }}-day streak
+                    </div>
+                    {% endif %}
+
+                    <!-- Notifications -->
+                    <a href="{{ url_for('notifications') }}" class="icon-btn" title="Notifications">
+                        <i class="fa-solid fa-bell"></i>
+                        {% if unread_notif_count > 0 %}
+                        <span
+                            style="position:absolute;top:6px;right:6px;width:8px;height:8px;background:var(--danger);border-radius:50%;"></span>
+                        {% endif %}
+                    </a>
+
+                    <!-- Mobile menu toggle -->
+                    <button class="icon-btn menu-toggle" id="menuToggle" title="Menu">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Flash Messages -->
+            <div class="flash-stack" id="flashStack">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                <div class="flash-toast {{ category }}" role="alert">
+                    <i
+                        class="fa-solid {% if category == 'success' %}fa-circle-check{% elif category == 'error' %}fa-circle-xmark{% elif category == 'warning' %}fa-triangle-exclamation{% else %}fa-circle-info{% endif %}"></i>
+                    <span>{{ message }}</span>
+                    <button class="flash-close" onclick="this.parentElement.remove()">&times;</button>
+                </div>
+                {% endfor %}
+                {% endwith %}
+            </div>
+
+            <!-- Page Content -->
+            <main class="page-body">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+
+    </div><!-- .shell -->
+
+    {% else %}
+    <!-- ╔══════════════════════════════════════╗ -->
+    <!-- ║     PUBLIC LANDING SHELL             ║ -->
+    <!-- ╚══════════════════════════════════════╝ -->
+    <div class="landing-shell">
+        <!-- Flash Messages (landing) -->
+        <div class="flash-stack" id="flashStack">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+            <div class="flash-toast {{ category }}" role="alert">
+                <i
+                    class="fa-solid {% if category == 'success' %}fa-circle-check{% elif category == 'error' %}fa-circle-xmark{% else %}fa-circle-info{% endif %}"></i>
+                <span>{{ message }}</span>
+                <button class="flash-close" onclick="this.parentElement.remove()">&times;</button>
+            </div>
+            {% endfor %}
+            {% endwith %}
+        </div>
+
+        {% block public_content %}{% endblock %}
+    </div>
+    {% endif %}
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-top" id="scrollTop" title="Back to top">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+    <!-- Main JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

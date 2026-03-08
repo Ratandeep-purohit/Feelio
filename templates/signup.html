@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block title %}Sign Up — Feelio{% endblock %}
+
+{% block public_content %}
+<div class="auth-layout">
+    <!-- Left Branding Panel -->
+    <div class="auth-panel-left">
+        <div style="position:relative;z-index:1;text-align:center;color:#fff">
+            <div style="font-size:4rem;margin-bottom:24px">🧠</div>
+            <h2 style="font-size:2.4rem;font-weight:900;color:#fff;margin-bottom:16px">Feelio</h2>
+            <p style="font-size:1.1rem;color:rgba(255,255,255,.85);max-width:360px;line-height:1.7">
+                AI-driven emotional awareness to help you understand your mental patterns and build lasting resilience.
+            </p>
+            <div class="mt-5"
+                style="display:flex;flex-direction:column;gap:16px;text-align:left;max-width:320px;margin:40px auto 0">
+                <div class="flex items-center gap-3" style="color:rgba(255,255,255,.9)">
+                    <i class="fa-solid fa-brain" style="width:24px"></i>
+                    <span>AI-powered emotional drift detection</span>
+                </div>
+                <div class="flex items-center gap-3" style="color:rgba(255,255,255,.9)">
+                    <i class="fa-solid fa-shield-halved" style="width:24px"></i>
+                    <span>Privacy-first, data never shared</span>
+                </div>
+                <div class="flex items-center gap-3" style="color:rgba(255,255,255,.9)">
+                    <i class="fa-solid fa-chart-line" style="width:24px"></i>
+                    <span>Real-time analytics & insights</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Form Panel -->
+    <div class="auth-panel-right">
+        <div class="auth-box fade-up">
+            <div style="font-size:2rem;margin-bottom:12px">👋</div>
+            <h1 class="auth-heading">Create your account</h1>
+            <p class="auth-subheading">Start your emotional wellness journey in seconds.</p>
+
+            <form method="POST" action="{{ url_for('signup') }}" autocomplete="off">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label"><i class="fa-solid fa-user"></i> Username <span
+                                style="color:var(--danger)">*</span></label>
+                        <input type="text" name="username" class="form-control" required placeholder="johndoe"
+                            autocomplete="username">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label"><i class="fa-solid fa-id-card"></i> Full Name</label>
+                        <input type="text" name="full_name" class="form-control" placeholder="John Doe"
+                            autocomplete="name">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label"><i class="fa-solid fa-envelope"></i> Email <span
+                            style="color:var(--danger)">*</span></label>
+                    <input type="email" name="email" class="form-control" required placeholder="john@example.com"
+                        autocomplete="email">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label"><i class="fa-solid fa-lock"></i> Password <span
+                            style="color:var(--danger)">*</span></label>
+                    <div style="position:relative">
+                        <input type="password" name="password" id="signupPassword" class="form-control" required
+                            placeholder="Create a strong password" autocomplete="new-password">
+                        <button type="button" class="toggle-pass" onclick="togglePass('signupPassword',this)"
+                            style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted)">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label"><i class="fa-solid fa-briefcase"></i> Occupation</label>
+                    <select name="occupation" class="form-control">
+                        <option value="">Select your role...</option>
+                        <option>Student</option>
+                        <option>Working Professional</option>
+                        <option>Remote Worker</option>
+                        <option>Caregiver</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+
+                <div class="checkbox-group mb-4">
+                    <input type="checkbox" id="privacy" name="privacy" required>
+                    <label for="privacy">I agree to the <a href="#" class="text-gradient fw-700">Privacy-First
+                            Policy</a> — my data is never sold.</label>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block btn-lg">
+                    <i class="fa-solid fa-rocket"></i> Create Account
+                </button>
+            </form>
+
+            <p class="text-center mt-4 text-muted">
+                Already have an account? <a href="{{ url_for('login') }}" class="fw-700"
+                    style="color:var(--primary)">Sign in →</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

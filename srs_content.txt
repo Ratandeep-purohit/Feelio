@@ -1,0 +1,248 @@
+Software Requirements Specification (SRS)
+Project: Feelio – AI-Driven Emotional Awareness Platform
+1. Introduction
+1.1 Purpose
+This document provides a detailed description of the functional and non-functional requirements for the Feelio platform. Feelio is an AI-powered mental wellness application designed to promote emotional awareness, detect early mental health risks, and guide users toward appropriate support mechanisms.
+
+The SRS is intended for developers, designers, project managers, and stakeholders involved in the development and deployment of the system.
+
+1.2 Scope
+Feelio is a proactive mental wellness platform that helps users monitor emotional patterns and detect early warning signs of stress, burnout, and other mental health risks.
+
+The system will:
+• Track mood and emotional states
+• Analyze behavioral patterns using AI
+• Detect emotional drift and early risk signals
+• Provide personalized mental wellness suggestions
+• Offer tiered support pathways
+• Maintain strict privacy through anonymized data processing
+
+The platform aims to shift mental healthcare from reactive treatment to proactive prevention.
+
+1.3 Definitions and Acronyms
+AI – Artificial Intelligence
+SRS – Software Requirements Specification
+Digital Phenotyping – Behavioral analysis through digital activity patterns
+Emotional Drift – Gradual change in emotional state detected by AI
+SOS – Emergency alert system
+
+1.4 Intended Audience
+This document is intended for:
+• Software Developers
+• AI/ML Engineers
+• UX/UI Designers
+• Product Managers
+• Mental Health Advisors
+• Stakeholders
+2. Overall Description
+2.1 Product Perspective
+Feelio is a mobile-first application integrated with AI analytics and behavioral monitoring tools.
+
+The system will consist of:
+• Mobile Application (Android / iOS)
+• AI Behavioral Analysis Engine
+• Cloud Data Processing Layer
+• Secure Storage
+• Notification & Support System
+
+2.2 Product Functions
+Major functions include:
+1. User onboarding and profile creation
+2. Daily emotion check-ins
+3. Passive behavioral monitoring
+4. AI mood pattern analysis
+5. Personalized support recommendations
+6. Calm content (breathing, mindfulness)
+7. Weekly emotional insights
+8. Crisis detection and escalation
+9. Progress tracking dashboard
+10. Multilingual and culturally adaptive support
+
+These features help users track moods, recognize patterns, and build healthier emotional habits.
+
+2.3 User Classes
+Students – Track stress levels related to studies and exams.
+Working Professionals – Manage work stress and burnout.
+Remote Workers – Maintain emotional balance in isolated work environments.
+Teenagers and Young Adults – Develop emotional awareness and coping strategies.
+Caregivers – Monitor emotional well-being while managing responsibilities.
+Mental Health Beginners – Individuals starting their mental wellness journey.
+
+2.4 Operating Environment
+Mobile OS – Android 8+ / iOS 13+
+Backend – Cloud Server
+Database – Secure encrypted database
+AI Engine – Machine Learning Models
+APIs – Integration with device sensors and apps
+
+2.5 Constraints
+• Must comply with data privacy laws
+• Limited access to sensitive device data
+• High security requirements
+• Low battery and resource consumption
+• AI predictions must avoid clinical diagnosis claims
+
+2.6 Assumptions and Dependencies
+Assumptions:
+• Users have smartphones
+• Users allow optional behavioral data access
+• Internet connection is available periodically
+
+Dependencies:
+• Device sensors
+• AI model training datasets
+• Cloud storage services
+3. System Features
+3.1 User Onboarding
+Description:
+Allows users to create an account and set preferences.
+
+Functional Requirements:
+• Users shall create an account using email or phone.
+• Users shall set language preferences.
+• Users shall choose privacy settings.
+
+3.2 Emotion Check-In
+Description:
+Users log emotions through simple inputs such as emojis or mood tags.
+
+Functional Requirements:
+• System shall allow daily mood entry.
+• System shall allow emoji-based emotion selection.
+• System shall allow optional journaling.
+
+3.3 Passive Behavioral Monitoring
+Description:
+The system observes behavioral signals such as:
+• sleep patterns
+• typing rhythm
+• app engagement
+
+This enables early detection of emotional changes.
+
+Functional Requirements:
+• System shall collect behavioral patterns with user consent.
+• System shall process signals locally where possible.
+• System shall anonymize sensitive data.
+
+3.4 AI Mood Analysis
+Description:
+AI analyzes user emotional patterns to detect risks.
+
+Functional Requirements:
+• AI shall analyze mood history.
+• AI shall detect emotional drift.
+• AI shall generate mental wellness insights.
+
+3.5 Personalized Care Path
+Description:
+Support pathways depend on emotional risk level.
+
+Support Levels:
+1. Self-care suggestions
+2. Peer support communities
+3. Crisis intervention guidance
+
+3.6 Calm Content System
+Provides relaxation and emotional regulation tools.
+
+Features include:
+• Breathing exercises
+• Meditation
+• Relaxation music
+• Mindfulness guides
+
+3.7 Progress Dashboard
+Description:
+Shows visual progress of emotional health.
+
+Features:
+• Mood graphs
+• Weekly emotional reports
+• Pattern insights
+
+3.8 Notifications & Reminders
+Description:
+Encourages consistent mental wellness habits.
+
+Examples:
+• Daily check-in reminder
+• Stress management suggestion
+• Break reminders
+4. External Interface Requirements
+4.1 User Interface
+The UI should include:
+• Minimalist emotional check-in screen
+• Dashboard with emotional insights
+• Calm content library
+• Support recommendation page
+
+Key characteristics:
+• Simple
+• Non-clinical
+• Emotion-friendly
+
+4.2 Hardware Interface
+The system may interact with:
+• Smartphone sensors
+• Device usage statistics
+• Wearables (optional)
+
+4.3 Software Interface
+Possible integrations:
+• Health tracking APIs
+• Wearable device APIs
+• Emergency service APIs
+• Cloud AI services
+5. Non-Functional Requirements
+5.1 Security
+• End-to-end encryption
+• Anonymous behavioral analysis
+• Secure authentication
+
+5.2 Privacy
+Feelio follows a privacy-first design where:
+• Personal messages are never accessed
+• Behavioral patterns are anonymized
+• Sensitive data is processed locally when possible
+
+5.3 Performance
+• App load time < 3 seconds
+• AI analysis within seconds
+• Minimal battery usage
+
+5.4 Usability
+The system must be:
+• Easy for first-time users
+• Low effort interaction
+• Emotionally safe environment
+
+5.5 Scalability
+The system should support:
+• Global user base
+• Multiple languages
+• High concurrent users
+6. Future Scope
+Possible future features include:
+
+1. Voice-Activated SOS
+Emergency alerts triggered by voice commands without needing to open the application.
+
+2. AI-Governed Community Moderation
+AI ensures safe peer interactions by monitoring and filtering harmful content.
+
+3. NGO and Healthcare Integration
+Real-time support connections with NGOs, mental health organizations, and healthcare providers.
+
+4. Secure Incident Documentation
+Encrypted recording and storage of emergency evidence when required.
+
+5. Adaptive Emergency Escalation
+SOS signals automatically expand reach until a verified response is received.
+
+6. Contextual Safety Intelligence
+Personalized alerts and safety guidance based on location, behavioral patterns, and risk level.
+7. Conclusion
+Feelio aims to revolutionize mental wellness by introducing proactive emotional awareness supported by artificial intelligence, behavioral insights, and privacy-first technology. The system empowers individuals to understand emotional patterns, detect risks early, and access appropriate support.
+
+By combining emotional tracking, AI-driven analysis, and adaptive support pathways, Feelio transforms everyday emotional experiences into actionable mental wellness insights. The platform encourages proactive care rather than reactive intervention, making mental health support accessible, scalable, and globally relevant.

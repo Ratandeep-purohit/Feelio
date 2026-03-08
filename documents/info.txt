@@ -1,0 +1,2 @@
+This folder is intended for documentation artifacts such as system architectures, API docs, algorithms logic rules, etc.
+See the SRS Document in the main project folder for overall requirements.

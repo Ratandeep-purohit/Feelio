@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+{% block title %}Emotion Check-In — Feelio{% endblock %}
+{% block page_title %}Emotion Check-In{% endblock %}
+{% block page_subtitle %}How are you feeling right now?{% endblock %}
+
+{% block content %}
+<div style="max-width:760px;margin:0 auto">
+    <form method="POST" action="{{ url_for('checkin') }}" id="checkinForm">
+
+        <!-- ── Step 1: Choose Emoji ─────────────────────────────── -->
+        <div class="card mb-4 fade-up stagger-1">
+            <div class="card-title mb-4">
+                <div class="card-icon purple"><i class="fa-solid fa-face-smile-beam"></i></div>
+                Step 1 — Select your Emotion
+            </div>
+            <div class="emoji-grid">
+                <label class="emoji-choice">
+                    <input type="radio" name="emoji" value="🤩" required>
+                    <div class="emoji-chip"><span class="em">🤩</span>Ecstatic</div>
+                </label>
+                <label class="emoji-choice">
+                    <input type="radio" name="emoji" value="😊">
+                    <div class="emoji-chip"><span class="em">😊</span>Happy</div>
+                </label>
+                <label class="emoji-choice">
+                    <input type="radio" name="emoji" value="🙂">
+                    <div class="emoji-chip"><span class="em">🙂</span>Content</div>
+                </label>
+                <label class="emoji-choice">
+                    <input type="radio" name="emoji" value="😐">
+                    <div class="emoji-chip"><span class="em">😐</span>Neutral</div>
+                </label>
+                <label class="emoji-choice">
+                    <input type="radio" name="emoji" value="😔">
+                    <div class="emoji-chip"><span class="em">😔</span>Sad</div>
+                </label>
+                <label class="emoji-choice">
+                    <input type="radio" name="emoji" value="😰">
+                    <div class="emoji-chip"><span class="em">😰</span>Anxious</div>
+                </label>
+                <label class="emoji-choice">
+                    <input type="radio" name="emoji" value="😠">
+                    <div class="emoji-chip"><span class="em">😠</span>Angry</div>
+                </label>
+                <label class="emoji-choice">
+                    <input type="radio" name="emoji" value="😭">
+                    <div class="emoji-chip"><span class="em">😭</span>Crying</div>
+                </label>
+            </div>
+        </div>
+
+        <!-- ── Step 2: Mood Tag + Score ─────────────────────────── -->
+        <div class="card mb-4 fade-up stagger-2">
+            <div class="card-title mb-4">
+                <div class="card-icon teal"><i class="fa-solid fa-tags"></i></div>
+                Step 2 — Describe Your Mood
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label"><i class="fa-solid fa-tag"></i> Mood Tag</label>
+                    <select name="mood_tag" class="form-control" required id="moodTagSelect">
+                        <option value="" disabled selected>Choose a mood word...</option>
+                        <option value="ecstatic">Ecstatic</option>
+                        <option value="happy">Happy</option>
+                        <option value="grateful">Grateful</option>
+                        <option value="content">Content</option>
+                        <option value="calm">Calm</option>
+                        <option value="tired">Tired</option>
+                        <option value="bored">Bored</option>
+                        <option value="anxious">Anxious</option>
+                        <option value="overwhelmed">Overwhelmed</option>
+                        <option value="sad">Sad</option>
+                        <option value="angry">Angry</option>
+                        <option value="burntout">Burnt Out</option>
+                        <option value="depressed">Depressed</option>
+                        <option value="hopeless">Hopeless</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fa-solid fa-bolt"></i> Energy Level</label>
+                    <div class="seg-control mt-1">
+                        <button type="button" class="seg-btn active" data-val="low" onclick="setEnergy('low',this)">🪫
+                            Low</button>
+                        <button type="button" class="seg-btn" data-val="medium" onclick="setEnergy('medium',this)">⚖️
+                            Medium</button>
+                        <button type="button" class="seg-btn" data-val="high" onclick="setEnergy('high',this)">⚡
+                            High</button>
+                    </div>
+                    <input type="hidden" name="energy_level" id="energyInput" value="low">
+                </div>
+            </div>
+
+            <!-- Mood Score Slider -->
+            <div class="form-group">
+                <label class="form-label"><i class="fa-solid fa-gauge-high"></i> Overall Mood Score</label>
+                <div class="slider-value" id="sliderDisplay">5</div>
+                <div class="score-slider-wrap">
+                    <input type="range" name="mood_score" class="score-slider" min="1" max="10" value="5" id="moodScore"
+                        oninput="document.getElementById('sliderDisplay').textContent=this.value">
+                    <div class="slider-labels"><span>Very Low</span><span>Moderate</span><span>Excellent</span></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label"><i class="fa-solid fa-moon"></i> Sleep Last Night (hours)</label>
+                <input type="number" name="sleep_hours" class="form-control" min="0" max="24" step="0.5"
+                    placeholder="e.g. 7.5">
+            </div>
+        </div>
+
+        <!-- ── Step 3: Triggers + Activities ────────────────────── -->
+        <div class="card mb-4 fade-up stagger-3">
+            <div class="card-title mb-4">
+                <div class="card-icon orange"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
+                Step 3 — What Influenced This?
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label"><i class="fa-solid fa-triangle-exclamation"></i> Stress Triggers</label>
+                    <div class="tag-grid">
+                        {% for trigger in
+                        ['work','deadlines','relationships','health','finances','family','loneliness','news'] %}
+                        <div class="tag-pill">
+                            <input type="checkbox" name="triggers" id="trig_{{ trigger }}" value="{{ trigger }}">
+                            <label for="trig_{{ trigger }}">{{ trigger|capitalize }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fa-solid fa-person-running"></i> Activities Done</label>
+                    <div class="tag-grid">
+                        {% for act in
+                        ['exercise','meditation','reading','socializing','journaling','nature','music','sleep'] %}
+                        <div class="tag-pill">
+                            <input type="checkbox" name="activities" id="act_{{ act }}" value="{{ act }}">
+                            <label for="act_{{ act }}">{{ act|capitalize }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Step 4: Journal ───────────────────────────────────── -->
+        <div class="card mb-4 fade-up stagger-4">
+            <div class="card-title mb-4">
+                <div class="card-icon pink"><i class="fa-solid fa-pen-fancy"></i></div>
+                Step 4 — Journal Entry <span class="text-muted fw-600 text-sm">(Optional)</span>
+            </div>
+            <div class="form-group">
+                <textarea name="journal" class="form-control" rows="5"
+                    placeholder="Write freely... What's on your mind? What happened today? How does your body feel?"></textarea>
+                <div class="form-hint">Your journal is private and end-to-end encrypted.</div>
+            </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="text-center fade-up stagger-5">
+            <button type="submit" class="btn btn-primary btn-lg" id="submitBtn" style="min-width:260px">
+                <i class="fa-solid fa-heart-circle-check"></i> Submit Check-In
+            </button>
+            <p class="text-muted text-sm mt-3">
+                <i class="fa-solid fa-robot"></i> Our AI will analyze your patterns and update your insights.
+            </p>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function setEnergy(val, btn) {
+        document.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('energyInput').value = val;
+    }
+
+    // Auto-fill mood score from mood tag selection
+    const moodScores = {
+        ecstatic: 10, happy: 8, grateful: 8, content: 7, calm: 6,
+        tired: 4, bored: 3, anxious: 2, overwhelmed: 2, sad: 2,
+        angry: 2, burntout: 1, depressed: 1, hopeless: 1
+    };
+    document.getElementById('moodTagSelect').addEventListener('change', function () {
+        const score = moodScores[this.value] || 5;
+        const slider = document.getElementById('moodScore');
+        slider.value = score;
+        document.getElementById('sliderDisplay').textContent = score;
+    });
+
+    // Submit loading state
+    document.getElementById('checkinForm').addEventListener('submit', function () {
+        const btn = document.getElementById('submitBtn');
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing AI Analysis...';
+        btn.disabled = true;
+    });
+</script>
+{% endblock %}

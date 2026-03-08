@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Notifications — Feelio{% endblock %}
+{% block page_title %}Notifications{% endblock %}
+{% block page_subtitle %}Stay on top of your wellness insights and alerts{% endblock %}
+
+{% block content %}
+<div style="max-width:780px;">
+    {% if notifications %}
+    <div style="display:flex;flex-direction:column;gap:12px">
+        {% for n in notifications %}
+        <div class="notif-item fade-up" style="--delay:{{ loop.index * 0.07 }}s;animation-delay:var(--delay)">
+            <div class="notif-icon {{ n.notif_type }}">
+                <i
+                    class="fa-solid {% if n.notif_type == 'success' %}fa-circle-check{% elif n.notif_type == 'warning' %}fa-triangle-exclamation{% elif n.notif_type == 'danger' %}fa-circle-exclamation{% else %}fa-circle-info{% endif %}"></i>
+            </div>
+            <div style="flex:1">
+                <div class="fw-700">{{ n.title }}</div>
+                <p class="text-sm text-muted mt-1">{{ n.message }}</p>
+                <div class="text-xs text-subtle mt-2"><i class="fa-regular fa-clock mr-1"></i>{{
+                    n.created_at.strftime('%d %b %Y at %H:%M') }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">🔔</div>
+        <h4>You're all caught up!</h4>
+        <p>New notifications will appear here when Feelio has insights or alerts for you.</p>
+        <a href="{{ url_for('checkin') }}" class="btn btn-primary mt-4"><i class="fa-solid fa-heart-pulse"></i> Do a
+            Check-In</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

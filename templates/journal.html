@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block title %}Journal — Feelio{% endblock %}
+{% block page_title %}Private Journal{% endblock %}
+{% block page_subtitle %}Express your thoughts freely and track your emotional narrative{% endblock %}
+
+{% block content %}
+<div class="grid g-cols-12">
+    <!-- Write New Entry -->
+    <div class="col4 fade-up stagger-1">
+        <div class="card">
+            <div class="card-title mb-4">
+                <div class="card-icon pink"><i class="fa-solid fa-pen-fancy"></i></div>
+                New Entry
+            </div>
+            <form method="POST" action="{{ url_for('journal') }}">
+                <div class="form-group">
+                    <label class="form-label"><i class="fa-solid fa-heading"></i> Title</label>
+                    <input type="text" name="title" class="form-control" placeholder="Give your entry a title...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fa-solid fa-tag"></i> Current Mood</label>
+                    <select name="mood_tag" class="form-control">
+                        <option value="">How are you feeling?</option>
+                        <option value="happy">Happy 😊</option>
+                        <option value="grateful">Grateful 🙏</option>
+                        <option value="calm">Calm 🌿</option>
+                        <option value="anxious">Anxious 😰</option>
+                        <option value="sad">Sad 😔</option>
+                        <option value="overwhelmed">Overwhelmed 😩</option>
+                        <option value="hopeful">Hopeful 🌅</option>
+                        <option value="angry">Angry 😠</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fa-solid fa-align-left"></i> Your Thoughts <span
+                            style="color:var(--danger)">*</span></label>
+                    <textarea name="content" class="form-control" rows="9" required
+                        placeholder="Write freely... No filters, no judgment. This is your private space."></textarea>
+                    <div class="form-hint"><i class="fa-solid fa-lock"></i> 100% private — AI sentiment analysis is done
+                        locally.</div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Entry
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Journal Entries List -->
+    <div class="col8 fade-up stagger-2">
+        <div class="card-title mb-4 flex justify-between items-center">
+            <div>
+                <h3>Your Entries <span class="badge badge-info text-sm">{{ entries|length }}</span></h3>
+                <p class="text-muted text-sm mt-1">Sorted by most recent</p>
+            </div>
+        </div>
+
+        {% if entries %}
+        <div style="display:flex;flex-direction:column;gap:14px">
+            {% for entry in entries %}
+            <div class="journal-card fade-up" onclick="openEntry({{ loop.index0 }})">
+                <div class="flex justify-between items-start mb-2">
+                    <h4 class="fw-700">{{ entry.title or 'Untitled' }}</h4>
+                    <div class="flex items-center gap-2">
+                        {% if entry.mood_tag %}
+                        <span class="badge badge-info text-xs">{{ entry.mood_tag|capitalize }}</span>
+                        {% endif %}
+                        {% if entry.sentiment_score > 0.01 %}
+                        <span class="badge badge-success text-xs">😊 Positive</span>
+                        {% elif entry.sentiment_score < -0.01 %} <span class="badge badge-high text-xs">😔
+                            Negative</span>
+                            {% else %}
+                            <span class="badge badge-info text-xs">😐 Neutral</span>
+                            {% endif %}
+                    </div>
+                </div>
+                <div class="journal-preview">{{ entry.content }}</div>
+                <div class="flex justify-between items-center mt-3 text-xs text-muted">
+                    <span><i class="fa-solid fa-calendar-days mr-1"></i>{{ entry.created_at.strftime('%d %b %Y, %H:%M')
+                        }}</span>
+                    <span><i class="fa-solid fa-align-left mr-1"></i>{{ entry.word_count }} words</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📓</div>
+            <h4>Your journal is empty</h4>
+            <p>Start writing to track your emotional narrative over time. Your first entry could spark a breakthrough.
+            </p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

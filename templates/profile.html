@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% block title %}Profile — Feelio{% endblock %}
+{% block page_title %}My Profile{% endblock %}
+{% block page_subtitle %}Manage your account and personal wellness preferences{% endblock %}
+
+{% block content %}
+<!-- ── Profile Header Banner ─────────────────────────────────── -->
+<div class="profile-header mb-4 fade-up">
+    <div class="profile-avatar-lg">{{ current_user.initials }}</div>
+    <div style="flex:1;position:relative;z-index:1">
+        <h2 style="color:#fff;font-size:1.8rem;font-weight:900">{{ current_user.full_name or current_user.username }}
+        </h2>
+        <p style="color:rgba(255,255,255,.8)">{{ current_user.email }}</p>
+        <div class="flex gap-3 mt-3 flex-wrap">
+            <span class="badge" style="background:rgba(255,255,255,.2);color:#fff">
+                <i class="fa-solid fa-fire"></i> {{ current_user.streak_days or 0 }}-Day Streak
+            </span>
+            <span class="badge" style="background:rgba(255,255,255,.2);color:#fff">
+                <i class="fa-solid fa-heart-pulse"></i> {{ current_user.total_checkins or 0 }} Check-Ins
+            </span>
+            {% if current_user.occupation %}
+            <span class="badge" style="background:rgba(255,255,255,.2);color:#fff">
+                <i class="fa-solid fa-briefcase"></i> {{ current_user.occupation }}
+            </span>
+            {% endif %}
+            <span class="badge" style="background:rgba(255,255,255,.2);color:#fff">
+                <i class="fa-regular fa-calendar"></i> Joined {{ current_user.created_at.strftime('%b %Y') }}
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="grid g-cols-12">
+    <!-- Edit Profile Form -->
+    <div class="card col8 fade-up stagger-1">
+        <div class="card-title mb-4">
+            <div class="card-icon purple"><i class="fa-solid fa-user-pen"></i></div>
+            Edit Profile
+        </div>
+        <form method="POST" action="{{ url_for('profile') }}">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label"><i class="fa-solid fa-id-card"></i> Full Name</label>
+                    <input type="text" name="full_name" class="form-control" value="{{ current_user.full_name or '' }}"
+                        placeholder="Your full name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fa-solid fa-briefcase"></i> Occupation</label>
+                    <select name="occupation" class="form-control">
+                        {% for opt in ['Student','Working Professional','Remote Worker','Caregiver','Mental Health
+                        Beginner','Other'] %}
+                        <option value="{{ opt }}" {% if current_user.occupation==opt %}selected{% endif %}>{{ opt }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label"><i class="fa-solid fa-cake-candles"></i> Age</label>
+                    <input type="number" name="age" class="form-control" value="{{ current_user.age or '' }}" min="12"
+                        max="100" placeholder="Your age">
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fa-solid fa-venus-mars"></i> Gender</label>
+                    <select name="gender" class="form-control">
+                        <option value="">Prefer not to say</option>
+                        {% for g in ['Male','Female','Non-binary','Other'] %}
+                        <option value="{{ g }}" {% if current_user.gender==g %}selected{% endif %}>{{ g }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label"><i class="fa-solid fa-language"></i> Language</label>
+                <select name="language" class="form-control">
+                    {% for code, name in
+                    [('en','English'),('hi','Hindi'),('es','Spanish'),('fr','French'),('de','German')] %}
+                    <option value="{{ code }}" {% if current_user.language==code %}selected{% endif %}>{{ name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="divider"></div>
+            <div class="card-title mb-4">
+                <div class="card-icon pink"><i class="fa-solid fa-lock"></i></div>
+                Change Password
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">New Password</label>
+                    <input type="password" name="new_password" class="form-control"
+                        placeholder="Leave blank to keep current">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Confirm Password</label>
+                    <input type="password" name="confirm_password" class="form-control"
+                        placeholder="Re-enter new password">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-floppy-disk"></i> Save Changes
+            </button>
+        </form>
+    </div>
+
+    <!-- Stats Sidebar -->
+    <div class="col4 fade-up stagger-2">
+        <div class="card mb-4">
+            <div class="card-title mb-4">
+                <div class="card-icon teal"><i class="fa-solid fa-chart-simple"></i></div>
+                Your Stats
+            </div>
+            <div style="display:flex;flex-direction:column;gap:16px">
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-muted fw-600">Check-In Streak</span>
+                        <span class="fw-700">{{ current_user.streak_days or 0 }} days</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill green"
+                            style="width:{{ [((current_user.streak_days or 0) / 30 * 100)|int, 100]|min }}%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-muted fw-600">Total Check-Ins</span>
+                        <span class="fw-700">{{ current_user.total_checkins or 0 }}</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill"
+                            style="width:{{ [((current_user.total_checkins or 0) / 100 * 100)|int, 100]|min }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Privacy Settings -->
+        <div class="card">
+            <div class="card-title mb-4">
+                <div class="card-icon orange"><i class="fa-solid fa-shield-halved"></i></div>
+                Privacy Settings
+            </div>
+            <div style="display:flex;flex-direction:column;gap:14px">
+                {% for opt in [
+                ('Anonymous analytics', True),
+                ('AI behavioral analysis', True),
+                ('Data export available', True),
+                ('Third-party sharing', False),
+                ] %}
+                <div class="flex justify-between items-center">
+                    <span class="text-sm">{{ opt[0] }}</span>
+                    <span class="badge {% if opt[1] %}badge-success{% else %}badge-high{% endif %}">
+                        {% if opt[1] %}<i class="fa-solid fa-check"></i> On{% else %}<i class="fa-solid fa-xmark"></i>
+                        Off{% endif %}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="divider"></div>
+            <a href="{{ url_for('logout') }}" class="btn btn-ghost btn-block btn-sm"
+                style="color:var(--danger);border-color:rgba(239,68,68,.3)">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> Sign Out from all devices
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

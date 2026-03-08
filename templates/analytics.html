@@ -1,0 +1,247 @@
+{% extends 'base.html' %}
+{% block title %}Analytics — Feelio{% endblock %}
+{% block page_title %}Analytics{% endblock %}
+{% block page_subtitle %}Deep-dive into your emotional wellness patterns{% endblock %}
+
+{% block content %}
+
+<!-- ── Time Range Tabs ────────────────────────────────────────── -->
+<div class="flex items-center gap-3 mb-5 fade-up">
+    <div class="seg-control" style="width:auto">
+        <button class="seg-btn active" onclick="loadAnalytics(7,this)">7 Days</button>
+        <button class="seg-btn" onclick="loadAnalytics(30,this)">30 Days</button>
+        <button class="seg-btn" onclick="loadAnalytics(90,this)">3 Months</button>
+    </div>
+    <span class="text-muted text-sm" id="analyticsRange">Showing last 7 days</span>
+</div>
+
+<!-- ── Charts Row ────────────────────────────────────────────── -->
+<div class="grid g-cols-12 mb-4">
+    <!-- Mood Trend (large) -->
+    <div class="card col8 fade-up stagger-1">
+        <div class="card-header">
+            <div class="card-title">
+                <div class="card-icon purple"><i class="fa-solid fa-chart-line"></i></div>
+                Mood Score Trend
+            </div>
+            <span class="badge badge-info" id="trendBadge">Loading...</span>
+        </div>
+        <div class="chart-wrap" style="height:280px">
+            <canvas id="moodTrendChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Mood Distribution (donut) -->
+    <div class="card col4 fade-up stagger-2">
+        <div class="card-header">
+            <div class="card-title">
+                <div class="card-icon pink"><i class="fa-solid fa-chart-pie"></i></div>
+                Emotion Breakdown
+            </div>
+        </div>
+        <div class="chart-wrap" style="height:240px">
+            <canvas id="moodDonutChart"></canvas>
+        </div>
+        <div id="donutLegend" class="mt-3" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+    </div>
+</div>
+
+<!-- ── Bottom Analytics Charts ─────────────────────────────── -->
+<div class="grid g-cols-12 mb-4">
+    <!-- Energy vs Sleep scatter -->
+    <div class="card col6 fade-up stagger-3">
+        <div class="card-header">
+            <div class="card-title">
+                <div class="card-icon teal"><i class="fa-solid fa-moon"></i></div>
+                Sleep vs Mood Score
+            </div>
+        </div>
+        <div class="chart-wrap" style="height:240px">
+            <canvas id="sleepMoodChart"></canvas>
+        </div>
+        <p class="text-muted text-xs mt-2 text-center" id="sleepHint">Tracks correlation between sleep hours and daily
+            mood</p>
+    </div>
+
+    <!-- Weekly stats overview -->
+    <div class="card col6 fade-up stagger-4">
+        <div class="card-header">
+            <div class="card-title">
+                <div class="card-icon orange"><i class="fa-solid fa-table-list"></i></div>
+                Weekly Summary
+            </div>
+        </div>
+        <div class="grid g-cols-2 gap-4" id="weeklySummaryGrid">
+            <div class="stat-card" style="padding:18px">
+                <div class="stat-icon" style="background:rgba(108,59,239,.1);color:var(--primary)"><i
+                        class="fa-solid fa-heart-pulse"></i></div>
+                <div class="stat-body">
+                    <div class="stat-value text-gradient" id="ws-checkins">—</div>
+                    <div class="stat-label">Check-Ins</div>
+                </div>
+            </div>
+            <div class="stat-card" style="padding:18px">
+                <div class="stat-icon" style="background:rgba(16,185,129,.12);color:var(--success)"><i
+                        class="fa-solid fa-star"></i></div>
+                <div class="stat-body">
+                    <div class="stat-value text-gradient" id="ws-avg">—</div>
+                    <div class="stat-label">Avg Score</div>
+                </div>
+            </div>
+            <div class="stat-card" style="padding:18px">
+                <div class="stat-icon" style="background:rgba(45,212,191,.15);color:var(--secondary)"><i
+                        class="fa-solid fa-sun"></i></div>
+                <div class="stat-body">
+                    <div class="stat-value text-gradient" id="ws-best">—</div>
+                    <div class="stat-label">Best Day</div>
+                </div>
+            </div>
+            <div class="stat-card" style="padding:18px">
+                <div class="stat-icon" style="background:rgba(239,68,68,.1);color:var(--danger)"><i
+                        class="fa-solid fa-cloud-rain"></i></div>
+                <div class="stat-body">
+                    <div class="stat-value text-gradient" id="ws-worst">—</div>
+                    <div class="stat-label">Hardest Day</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let trendChart = null, donutChart = null, sleepChart = null;
+
+    const COLORS = ['#6c3bef', '#2dd4bf', '#f472b6', '#fb923c', '#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
+
+    function loadAnalytics(days, btn) {
+        // Update tab UI
+        document.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        document.getElementById('analyticsRange').textContent = `Showing last ${days} days`;
+
+        // 1. Mood Trend Chart
+        fetch(`/api/analytics/mood-trend?days=${days}`)
+            .then(r => r.json())
+            .then(d => {
+                if (!d.success) return;
+                const labels = d.data.map(x => x.date);
+                const scores = d.data.map(x => x.score);
+
+                // Trend badge
+                if (scores.length >= 2) {
+                    const diff = scores[scores.length - 1] - scores[0];
+                    const badge = document.getElementById('trendBadge');
+                    badge.textContent = diff > 0 ? `↑ Improving` : diff < 0 ? `↓ Declining` : `→ Stable`;
+                    badge.className = `badge badge-${diff > 0 ? 'success' : diff < 0 ? 'high' : 'info'}`;
+                }
+
+                const ctx = document.getElementById('moodTrendChart').getContext('2d');
+                const grad = ctx.createLinearGradient(0, 0, 0, 280);
+                grad.addColorStop(0, 'rgba(108,59,239,.25)');
+                grad.addColorStop(1, 'rgba(108,59,239,0)');
+
+                if (trendChart) trendChart.destroy();
+                trendChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels,
+                        datasets: [{
+                            label: 'Mood Score',
+                            data: scores,
+                            borderColor: '#6c3bef',
+                            backgroundColor: grad,
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.45,
+                            pointBackgroundColor: '#6c3bef',
+                            pointRadius: 6,
+                            pointHoverRadius: 10,
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `Score: ${c.raw}/10` } } },
+                        scales: {
+                            y: { min: 0, max: 10, grid: { color: 'rgba(0,0,0,.04)' }, ticks: { font: { size: 11 } } },
+                            x: { grid: { display: false }, ticks: { font: { size: 11 }, maxTicksLimit: 10 } }
+                        }
+                    }
+                });
+            });
+
+        // 2. Mood Distribution Donut
+        fetch('/api/analytics/mood-distribution')
+            .then(r => r.json())
+            .then(d => {
+                if (!d.success) return;
+                const labels = d.data.map(x => x.mood);
+                const counts = d.data.map(x => x.count);
+                const colors = COLORS.slice(0, labels.length);
+
+                const ctx = document.getElementById('moodDonutChart').getContext('2d');
+                if (donutChart) donutChart.destroy();
+                donutChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: { labels, datasets: [{ data: counts, backgroundColor: colors, borderWidth: 0, hoverOffset: 8 }] },
+                    options: {
+                        responsive: true, maintainAspectRatio: false, cutout: '65%',
+                        plugins: { legend: { display: false } }
+                    }
+                });
+
+                // Custom legend
+                const leg = document.getElementById('donutLegend');
+                leg.innerHTML = labels.map((l, i) =>
+                    `<div class="flex items-center gap-1 text-xs"><span style="width:10px;height:10px;border-radius:50%;background:${colors[i]};display:inline-block"></span>${l} (${counts[i]})</div>`
+                ).join('');
+            });
+
+        // 3. Sleep vs Mood scatter
+        fetch('/api/analytics/energy-sleep')
+            .then(r => r.json())
+            .then(d => {
+                if (!d.success || !d.data.length) {
+                    document.getElementById('sleepHint').textContent = 'Not enough data yet — log sleep hours in check-ins.';
+                    return;
+                }
+                const points = d.data.map(x => ({ x: x.sleep, y: x.score }));
+                const ctx = document.getElementById('sleepMoodChart').getContext('2d');
+                if (sleepChart) sleepChart.destroy();
+                sleepChart = new Chart(ctx, {
+                    type: 'scatter',
+                    data: {
+                        datasets: [{
+                            label: 'Sleep vs Score', data: points,
+                            backgroundColor: 'rgba(108,59,239,.6)', pointRadius: 7, pointHoverRadius: 10
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { title: { display: true, text: 'Sleep Hours', font: { size: 11 } }, min: 0, max: 12, grid: { color: 'rgba(0,0,0,.04)' } },
+                            y: { title: { display: true, text: 'Mood Score', font: { size: 11 } }, min: 0, max: 10, grid: { color: 'rgba(0,0,0,.04)' } }
+                        }
+                    }
+                });
+            });
+
+        // 4. Weekly summary stats
+        fetch('/api/analytics/weekly-summary')
+            .then(r => r.json())
+            .then(d => {
+                if (!d.success) return;
+                document.getElementById('ws-checkins').textContent = d.total_checkins;
+                document.getElementById('ws-avg').textContent = d.avg_score || '—';
+                document.getElementById('ws-best').textContent = d.best_day;
+                document.getElementById('ws-worst').textContent = d.worst_day;
+            });
+    }
+
+    // Initial load
+    loadAnalytics(7, null);
+</script>
+{% endblock %}

@@ -1,0 +1,300 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — Feelio{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}Your emotional wellness overview{% endblock %}
+
+{% block content %}
+<!-- ── Stat Cards Row ─────────────────────────────────────────── -->
+<div class="grid g-cols-4 mb-4" id="statCards">
+    <!-- Loaded via JS API -->
+    <div class="stat-card stagger-1 fade-up">
+        <div class="stat-icon" style="background:rgba(108,59,239,.12);color:var(--primary)"><i
+                class="fa-solid fa-heart-pulse"></i></div>
+        <div class="stat-body">
+            <div class="stat-value" id="stat-checkins">{{ current_user.total_checkins or 0 }}</div>
+            <div class="stat-label">Total Check-Ins</div>
+        </div>
+    </div>
+    <div class="stat-card stagger-2 fade-up">
+        <div class="stat-icon" style="background:rgba(45,212,191,.15);color:var(--secondary)"><i
+                class="fa-solid fa-fire"></i></div>
+        <div class="stat-body">
+            <div class="stat-value" id="stat-streak">{{ current_user.streak_days or 0 }}</div>
+            <div class="stat-label">Day Streak</div>
+        </div>
+    </div>
+    <div class="stat-card stagger-3 fade-up">
+        <div class="stat-icon" style="background:rgba(251,146,60,.15);color:var(--accent-warm)"><i
+                class="fa-solid fa-star"></i></div>
+        <div class="stat-body">
+            <div class="stat-value" id="stat-weekly-avg">—</div>
+            <div class="stat-label">Weekly Avg Score</div>
+        </div>
+    </div>
+    <div class="stat-card stat-grad-purple stagger-4 fade-up" style="cursor:pointer"
+        onclick="location.href='{{ url_for('checkin') }}'">
+        <div class="stat-icon"><i class="fa-solid fa-plus"></i></div>
+        <div class="stat-body">
+            <div class="stat-value" style="font-size:1.3rem">New Check-In</div>
+            <div class="stat-label">Log your mood now</div>
+        </div>
+    </div>
+</div>
+
+<div class="grid g-cols-12 mb-4">
+    <!-- ── AI Insight Panel ────────────────────────── col 8 -->
+    <div class="card col8 fade-up stagger-1">
+        <div class="card-header">
+            <div class="card-title">
+                <div class="card-icon purple"><i class="fa-solid fa-robot"></i></div>
+                AI Emotional Insights
+            </div>
+            {% if analysis %}
+            <span class="badge badge-{{ analysis.risk_level }}">
+                {{ analysis.risk_level|capitalize }} Risk
+            </span>
+            {% endif %}
+        </div>
+
+        {% if analysis %}
+        <div class="flex items-center gap-5 mb-4">
+            <!-- Score Ring -->
+            <div class="score-ring">
+                <svg width="96" height="96" viewBox="0 0 96 96">
+                    <circle class="ring-bg" cx="48" cy="48" r="40" />
+                    <circle class="ring-fill" cx="48" cy="48" r="40" stroke="url(#scoreGrad)"
+                        stroke-dasharray="{{ analysis.weekly_avg_score * 25.13 }} 251.3" stroke-dashoffset="0" />
+                    <defs>
+                        <linearGradient id="scoreGrad" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stop-color="#6c3bef" />
+                            <stop offset="100%" stop-color="#2dd4bf" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <div class="ring-label">
+                    <span class="ring-number">{{ analysis.weekly_avg_score }}</span>
+                    <span class="ring-unit">/ 10</span>
+                </div>
+            </div>
+
+            <div style="flex:1">
+                <div class="mb-3">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="fw-600 text-muted">Burnout Probability</span>
+                        <span class="fw-700" style="color:var(--warning)">{{ (analysis.burnout_probability * 100)|int
+                            }}%</span>
+                    </div>
+                    <div class="risk-meter-bar">
+                        <div class="risk-meter-fill risk-fill-{{ analysis.risk_level }}"
+                            style="width:{{ (analysis.burnout_probability * 100)|int }}%"></div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="fw-600 text-muted">Emotional Drift</span>
+                        <span class="fw-700" style="color:var(--danger)">{{ (analysis.emotional_drift_score * 100)|int
+                            }}%</span>
+                    </div>
+                    <div class="risk-meter-bar">
+                        <div class="risk-meter-fill risk-fill-{{ analysis.risk_level }}"
+                            style="width:{{ (analysis.emotional_drift_score * 100)|int }}%"></div>
+                    </div>
+                </div>
+                <div class="flex gap-3 flex-wrap">
+                    <span class="badge badge-info"><i
+                            class="fa-solid fa-arrow-trend-{{ 'up' if analysis.mood_trend == 'improving' else 'down' }}"></i>
+                        {{ analysis.mood_trend|capitalize }}</span>
+                    <span class="badge badge-success"><i class="fa-solid fa-face-smile"></i> {{
+                        analysis.dominant_emotion|capitalize }}</span>
+                    <span class="badge" style="background:rgba(108,59,239,.1);color:var(--primary)">Pathway {{
+                        analysis.care_pathway }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div
+            style="background:rgba(108,59,239,.06);border-radius:var(--radius);padding:16px;border-left:4px solid var(--primary)">
+            <div class="text-sm fw-700 mb-1"><i class="fa-regular fa-lightbulb"></i> Insight</div>
+            <p class="text-sm text-muted">{{ analysis.insights }}</p>
+        </div>
+        <div class="text-xs text-subtle mt-2">Analyzed at {{ analysis.created_at.strftime('%d %b %Y, %H:%M') }} UTC
+        </div>
+
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">🤖</div>
+            <h4>No AI analysis yet</h4>
+            <p>Complete your first Emotion Check-In to generate personalized AI insights.</p>
+            <a href="{{ url_for('checkin') }}" class="btn btn-primary mt-3"><i class="fa-solid fa-plus"></i> Start
+                Check-In</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- ── Goals Summary ──────────────────────────── col 4 -->
+    <div class="card col4 fade-up stagger-2">
+        <div class="card-header">
+            <div class="card-title">
+                <div class="card-icon green"><i class="fa-solid fa-bullseye"></i></div>
+                Active Goals
+            </div>
+            <a href="{{ url_for('goals') }}" class="btn btn-ghost btn-sm">View All</a>
+        </div>
+        {% if goals %}
+        <div style="display:flex;flex-direction:column;gap:14px">
+            {% for goal in goals %}
+            <div class="goal-card" onclick="incrementGoal({{ goal.id }}, this)" style="cursor:pointer"
+                title="Click to mark day done">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="fw-700 text-sm">{{ goal.title }}</span>
+                    <span class="badge badge-info text-xs">{{ goal.goal_type }}</span>
+                </div>
+                <div class="progress-bar mb-1">
+                    <div class="progress-fill"
+                        style="width:{{ ((goal.completed_days / goal.target_days) * 100)|int }}%"></div>
+                </div>
+                <div class="flex justify-between text-xs text-muted">
+                    <span>{{ goal.completed_days }}/{{ goal.target_days }} days</span>
+                    <span>{{ ((goal.completed_days / goal.target_days) * 100)|int }}%</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state" style="padding:24px 0">
+            <div class="empty-icon">🎯</div>
+            <p>No active goals</p>
+            <a href="{{ url_for('goals') }}" class="btn btn-secondary btn-sm mt-2">Create Goal</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ── Bottom Row: Recent Logs + Mini Chart ───────────────────── -->
+<div class="grid g-cols-12">
+    <!-- Recent Logs -->
+    <div class="card col6 fade-up stagger-3">
+        <div class="card-header">
+            <div class="card-title">
+                <div class="card-icon purple"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                Recent Check-Ins
+            </div>
+            <a href="{{ url_for('checkin') }}" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus"></i> New</a>
+        </div>
+        {% if logs %}
+        <div class="log-list">
+            {% for log in logs %}
+            <div class="log-item">
+                <span class="log-emoji">{{ log.emoji }}</span>
+                <div class="log-body">
+                    <div class="log-mood">{{ log.mood_tag|capitalize }} <span style="font-size:.9rem">({{ log.mood_score
+                            }}/10)</span></div>
+                    {% if log.journal %}
+                    <div class="log-journal-preview">{{ log.journal }}</div>
+                    {% endif %}
+                </div>
+                <div class="log-meta">
+                    {% if log.energy_level == 'high' %}
+                    <span class="badge badge-success text-xs">⚡ High Energy</span>
+                    {% elif log.energy_level == 'low' %}
+                    <span class="badge badge-high text-xs">🪫 Low Energy</span>
+                    {% else %}
+                    <span class="badge badge-info text-xs">⚖️ Medium</span>
+                    {% endif %}
+                    <span class="log-time">{{ log.created_at.strftime('%d %b, %H:%M') }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state" style="padding:36px 0">
+            <div class="empty-icon">📋</div>
+            <p>No check-ins yet. Log your first emotion!</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Mini Mood Chart -->
+    <div class="card col6 fade-up stagger-4">
+        <div class="card-header">
+            <div class="card-title">
+                <div class="card-icon teal"><i class="fa-solid fa-chart-area"></i></div>
+                7-Day Mood Trend
+            </div>
+            <a href="{{ url_for('analytics') }}" class="btn btn-ghost btn-sm">Full Analytics →</a>
+        </div>
+        <div class="chart-wrap" style="height:220px">
+            <canvas id="miniMoodChart"></canvas>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // ── Load Weekly Summary ──────────────────────────────────────────
+    fetch('/api/analytics/weekly-summary')
+        .then(r => r.json())
+        .then(d => {
+            if (d.success) {
+                document.getElementById('stat-weekly-avg').textContent = d.avg_score || '—';
+            }
+        });
+
+    // ── Mini Mood Chart ──────────────────────────────────────────────
+    fetch('/api/analytics/mood-trend?days=7')
+        .then(r => r.json())
+        .then(d => {
+            if (!d.success || !d.data.length) return;
+            const labels = d.data.map(x => x.date);
+            const scores = d.data.map(x => x.score);
+            const ctx = document.getElementById('miniMoodChart').getContext('2d');
+            const grad = ctx.createLinearGradient(0, 0, 0, 220);
+            grad.addColorStop(0, 'rgba(108,59,239,.3)');
+            grad.addColorStop(1, 'rgba(108,59,239,0)');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Mood Score',
+                        data: scores,
+                        borderColor: '#6c3bef',
+                        backgroundColor: grad,
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.45,
+                        pointBackgroundColor: '#6c3bef',
+                        pointRadius: 5,
+                        pointHoverRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { min: 0, max: 10, grid: { color: 'rgba(0,0,0,.04)' }, ticks: { font: { size: 11 } } },
+                        x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+                    }
+                }
+            });
+        });
+
+    // ── Increment Goal ───────────────────────────────────────────────
+    function incrementGoal(goalId, el) {
+        fetch(`/api/goals/${goalId}/increment`, { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+            .then(r => r.json())
+            .then(d => {
+                if (d.success) {
+                    const g = d.goal;
+                    const fill = el.querySelector('.progress-fill');
+                    if (fill) fill.style.width = g.progress + '%';
+                    const spans = el.querySelectorAll('.flex.justify-between.text-xs.text-muted span');
+                    if (spans[0]) spans[0].textContent = `${g.completed_days}/${g.target_days} days`;
+                    if (spans[1]) spans[1].textContent = `${g.progress}%`;
+                    if (g.is_completed) el.classList.add('completed');
+                }
+            });
+    }
+</script>
+{% endblock %}
